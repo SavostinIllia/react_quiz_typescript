@@ -3,7 +3,7 @@ import AnswerItem from "./AnswerItem/AnswerItem";
 import styled from "styled-components";
 
 interface AnswersListProps {
-  answers: Quiz[];
+  answers: QuizAnswers[];
   onAnswerClick(id: number): void;
   answerState: null | { [id: number]: "success" | "error" };
 }
@@ -20,19 +20,22 @@ const AnswersList: React.FC<AnswersListProps> = ({
   answerState,
 }) => {
   return (
-    <AnswersListOptions>
-      {answers.map((answer) => {
-        return (
-          <AnswerItem
-            key={answer.id}
-            answerText={answer.text}
-            onAnswerClick={onAnswerClick}
-            answerId={answer.id}
-            answerState={answerState ? answerState[answer.id] : null}
-          />
-        );
-      })}
-    </AnswersListOptions>
+    console.log(answerState),
+    (
+      <AnswersListOptions>
+        {answers.map((answer) => {
+          return (
+            <AnswerItem
+              key={answer.id}
+              answerText={answer.text}
+              onAnswerClick={onAnswerClick}
+              answerId={answer.id}
+              answerState={answerState ? answerState[answer.id] : null}
+            />
+          );
+        })}
+      </AnswersListOptions>
+    )
   );
 };
 export default AnswersList;

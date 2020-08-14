@@ -9,7 +9,7 @@ interface AnswerItemProps {
   answerState: null | "success" | "error";
 }
 
-const Answer = styled.li<{ answerState: null | "success" | "error" }>`
+const Answer = styled.li`
   flex: 0 0 100%;
   border: 1px solid var(--whiteTextColor);
   padding: 10px;
@@ -43,13 +43,11 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
   });
 
   return (
-    <Answer
-      className={AnswerClass}
-      answerState={answerState!}
-      onClick={() => onAnswerClick(answerId)}
-    >
+    <Answer className={AnswerClass} onClick={() => onAnswerClick(answerId)}>
       {answerText}
     </Answer>
   );
 };
 export default AnswerItem;
+
+// <{ answerState: null | "success" | "error" }>

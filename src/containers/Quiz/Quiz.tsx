@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import ActiveQuiz from "../../components/ActiveQuiz/ActiveQuiz";
 import styled from "styled-components";
+import FinishedQuiz from "../../components/FinishedQuiz/FinishedQuiz";
 
 interface QuizProps {}
 
@@ -32,6 +33,7 @@ const ActiveQuizWrapper = styled.div`
 
 class Quiz extends Component<QuizProps> {
   state: QuizState = {
+    isFinished: false,
     activeQuestion: 0,
     answerState: null,
     quiz: [
@@ -39,6 +41,7 @@ class Quiz extends Component<QuizProps> {
         question: "2 + 2 * 2?",
         rightAnswerId: 4,
         id: 1,
+        result: null,
         answers: [
           { text: "4", id: 1 },
           { text: "5", id: 2 },
@@ -49,6 +52,7 @@ class Quiz extends Component<QuizProps> {
       {
         question: "What 2?",
         rightAnswerId: 1,
+        result: null,
         id: 2,
         answers: [
           { text: "Answer 1", id: 1 },
@@ -64,12 +68,16 @@ class Quiz extends Component<QuizProps> {
     const question = this.state.quiz[this.state.activeQuestion];
 
     if (question.rightAnswerId === answerId) {
+      question.result = "success";
+      console.log(question.result);
       this.setState({
         answerState: { [answerId]: "success" },
-      } as QuizState);
-
+      });
       const timer: ReturnType<typeof setTimeout> = setTimeout(() => {
         if (this.isQuizFinished()) {
+          this.setState({
+            isFinished: true,
+          } as QuizState);
         } else {
           this.setState({
             activeQuestion: this.state.activeQuestion + 1,
@@ -80,10 +88,11 @@ class Quiz extends Component<QuizProps> {
         window.clearTimeout(timer);
       }, 800);
     } else {
-      console.log("error");
+      question.result = "error";
+      console.log(question.result);
       this.setState({
         answerState: { [answerId]: "error" },
-      } as QuizState);
+      });
     }
   };
 
@@ -96,14 +105,18 @@ class Quiz extends Component<QuizProps> {
       <QuizContainer>
         <ActiveQuizWrapper>
           <QuizTitle>Quiz</QuizTitle>
-          <ActiveQuiz
-            answers={this.state.quiz[this.state.activeQuestion].answers}
-            question={this.state.quiz[this.state.activeQuestion].question}
-            onAnswerClick={this.onAnswerClickHandler}
-            answerNumber={this.state.activeQuestion + 1}
-            answerState={this.state.answerState}
-            queistionLength={this.state.quiz.length}
-          />
+          {this.state.isFinished ? (
+            <FinishedQuiz quiz={this.state.quiz} />
+          ) : (
+            <ActiveQuiz
+              answers={this.state.quiz[this.state.activeQuestion].answers}
+              question={this.state.quiz[this.state.activeQuestion].question}
+              onAnswerClick={this.onAnswerClickHandler}
+              answerNumber={this.state.activeQuestion + 1}
+              answerState={this.state.answerState}
+              queistionLength={this.state.quiz.length}
+            />
+          )}
         </ActiveQuizWrapper>
       </QuizContainer>
     );

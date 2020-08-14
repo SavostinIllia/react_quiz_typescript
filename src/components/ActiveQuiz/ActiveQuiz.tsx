@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 interface ActiveQuizProps {
   question: string;
-  answers: Quiz[];
+  answers: QuizAnswers[];
   onAnswerClick(id: number): void;
   answerNumber: number;
   answerState: null | { [id: number]: "success" | "error" };
