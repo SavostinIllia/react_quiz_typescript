@@ -36,12 +36,13 @@ class Quiz extends Component<QuizProps> {
     isFinished: false,
     activeQuestion: 0,
     answerState: null,
+    results: {},
     quiz: [
       {
         question: "2 + 2 * 2?",
         rightAnswerId: 4,
         id: 1,
-        result: null,
+
         answers: [
           { text: "4", id: 1 },
           { text: "5", id: 2 },
@@ -52,7 +53,7 @@ class Quiz extends Component<QuizProps> {
       {
         question: "What 2?",
         rightAnswerId: 1,
-        result: null,
+
         id: 2,
         answers: [
           { text: "Answer 1", id: 1 },
@@ -66,12 +67,15 @@ class Quiz extends Component<QuizProps> {
 
   onAnswerClickHandler = (answerId: number) => {
     const question = this.state.quiz[this.state.activeQuestion];
+    const results = this.state.results;
 
     if (question.rightAnswerId === answerId) {
-      question.result = "success";
-      console.log(question.result);
+      if (!results![question.id]) {
+        results![question.id] = "success";
+      }
       this.setState({
         answerState: { [answerId]: "success" },
+        results,
       });
       const timer: ReturnType<typeof setTimeout> = setTimeout(() => {
         if (this.isQuizFinished()) {
@@ -88,10 +92,10 @@ class Quiz extends Component<QuizProps> {
         window.clearTimeout(timer);
       }, 800);
     } else {
-      question.result = "error";
-      console.log(question.result);
+      results![question.id] = "error";
       this.setState({
         answerState: { [answerId]: "error" },
+        results,
       });
     }
   };
@@ -106,7 +110,7 @@ class Quiz extends Component<QuizProps> {
         <ActiveQuizWrapper>
           <QuizTitle>Quiz</QuizTitle>
           {this.state.isFinished ? (
-            <FinishedQuiz quiz={this.state.quiz} />
+            <FinishedQuiz quiz={this.state.quiz} results={this.state.results} />
           ) : (
             <ActiveQuiz
               answers={this.state.quiz[this.state.activeQuestion].answers}
