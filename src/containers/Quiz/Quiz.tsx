@@ -33,7 +33,7 @@ const ActiveQuizWrapper = styled.div`
 
 class Quiz extends Component<QuizProps> {
   state: QuizState = {
-    isFinished: true,
+    isFinished: false,
     activeQuestion: 0,
     answerState: null,
     results: {},

@@ -90,6 +90,7 @@ const FinishedQuiz: React.FC<FinishedQuizProps> = ({
         onClick={() => onRepeatHandler()}
         text="Repeat Quiz"
       />
+      <Button buttonClass="success" text="Return to Quiz List" />
     </FinishedQuizWrapper>
   );
 };
