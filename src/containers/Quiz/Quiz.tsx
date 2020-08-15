@@ -33,7 +33,7 @@ const ActiveQuizWrapper = styled.div`
 
 class Quiz extends Component<QuizProps> {
   state: QuizState = {
-    isFinished: false,
+    isFinished: true,
     activeQuestion: 0,
     answerState: null,
     results: {},
@@ -104,13 +104,26 @@ class Quiz extends Component<QuizProps> {
     return this.state.activeQuestion + 1 === this.state.quiz.length;
   }
 
+  onRepeatHandler = () => {
+    this.setState({
+      isFinished: false,
+      activeQuestion: 0,
+      answerState: null,
+      results: {},
+    });
+  };
+
   render() {
     return (
       <QuizContainer>
         <ActiveQuizWrapper>
           <QuizTitle>Quiz</QuizTitle>
           {this.state.isFinished ? (
-            <FinishedQuiz quiz={this.state.quiz} results={this.state.results} />
+            <FinishedQuiz
+              quiz={this.state.quiz}
+              results={this.state.results}
+              onRepeatHandler={this.onRepeatHandler}
+            />
           ) : (
             <ActiveQuiz
               answers={this.state.quiz[this.state.activeQuestion].answers}
