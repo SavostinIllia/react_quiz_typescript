@@ -1,4 +1,5 @@
-type FormControlsEmail = {
+interface FormControlsEmail {
+  key: number;
   value: string;
   type: string;
   label: string;
@@ -6,13 +7,13 @@ type FormControlsEmail = {
   valid: boolean;
   touched: boolean;
   validation: Validation;
-};
+}
 
-type Validation = {
+interface Validation {
   required: boolean;
   email: true;
   minLength?: number;
-};
+}
 
 type FormControlsPassword = Pick<FormControlsEmail, Omit<Validation, "email">>;
 

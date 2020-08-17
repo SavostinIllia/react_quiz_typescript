@@ -2,35 +2,37 @@ import React, { useState } from "react";
 import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
 
-interface AuthProps {}
+const InitialState: FormControls = {
+  email: {
+    key: 1,
+    value: "",
+    type: "email",
+    label: "Email",
+    errorMessage: "Enter valid email",
+    valid: false,
+    touched: false,
+    validation: {
+      required: true,
+      email: true,
+    },
+  },
+  password: {
+    key: 2,
+    value: "",
+    type: "password",
+    label: "Password",
+    errorMessage: "Enter valid password",
+    valid: false,
+    touched: false,
+    validation: {
+      required: true,
+      minLength: 6,
+    },
+  },
+};
 
-const Auth: React.FC<AuthProps> = ({}) => {
-  const [formControls, setFormControls] = useState<any>({
-    email: {
-      value: "",
-      type: "email",
-      label: "Email",
-      errorMessage: "Enter valid email",
-      valid: false,
-      touched: false,
-      validation: {
-        required: true,
-        email: true,
-      },
-    },
-    password: {
-      value: "",
-      type: "password",
-      label: "Password",
-      errorMessage: "Enter valid password",
-      valid: false,
-      touched: false,
-      validation: {
-        required: true,
-        minLength: 6,
-      },
-    },
-  });
+const Auth: React.FC = () => {
+  const [formControls, setFormControls] = useState<any>(InitialState);
 
   const logInHandler = (e: MouseEvent) => {
     e.preventDefault();
@@ -47,50 +49,48 @@ const Auth: React.FC<AuthProps> = ({}) => {
     console.log("submit");
   };
 
-  function renderInputs() {
-    Object.keys(formControls).map(
-      (controlName, index): JSX.Element => {
+  const renderInputs = () => {
+    return Object.keys(formControls).map(
+      (controlName: string, index: number) => {
         const control = formControls[controlName];
+
         return (
           <Input
-            key={controlName + index}
+            key={control.key}
             type={control.type}
             value={control.value}
             valid={control.valid}
             touched={control.touched}
             label={control.label}
             errorMessage={control.errorMessage}
-            shouldValidate={!!control.validation}
+            shouldValidate={control.validation}
           />
         );
       }
     );
-  }
+  };
 
   return (
-    console.log(formControls),
-    (
+    <div>
       <div>
-        <div>
-          <h1>Auth</h1>
-          <form
-          // onSubmit={(e: React.FormEvent<HTMLFormElement>) => onsubmitHandler(e)}
-          >
-            {renderInputs()}
-            <Button
-              buttonClass={"success"}
-              text="Log In"
-              onClick={(e: MouseEvent) => logInHandler(e)}
-            />
-            <Button
-              buttonClass={"primary"}
-              text="Register"
-              onClick={(e: MouseEvent) => registerHandler(e)}
-            />
-          </form>
-        </div>
+        <h1>Auth</h1>
+        <form
+          onSubmit={(e: React.FormEvent<HTMLFormElement>) => onsubmitHandler(e)}
+        >
+          {renderInputs()}
+          <Button
+            buttonClass="success"
+            text="Log In"
+            onClick={(e: MouseEvent) => logInHandler(e)}
+          />
+          <Button
+            buttonClass="primary"
+            text="Register"
+            onClick={(e: MouseEvent) => registerHandler(e)}
+          />
+        </form>
       </div>
-    )
+    </div>
   );
 };
 export default Auth;
