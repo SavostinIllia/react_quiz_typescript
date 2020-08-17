@@ -3,6 +3,7 @@ import MenuToggle from "./MenuToggle";
 import styled from "styled-components";
 import classNames from "classnames";
 import BackDrop from "./BackDrop";
+import { NavLink } from "react-router-dom";
 
 const DrawerNavigation = styled.nav`
   position: fixed;
@@ -19,12 +20,15 @@ const DrawerNavigation = styled.nav`
     left: -400px;
   }
 `;
-const DrawerNavigationLinks = styled.a`
+const DrawerNavigationLinksArray = styled.ul``;
+const DrawerNavigationLinksWrapper = styled.li`
   display: block;
   margin: 20px 0;
+  padding: 0 20px;
+`;
+const DrawerNavigationLinks = styled(NavLink)`
   font-size: 45px;
   font-weight: 600;
-  padding: 0 20px;
   color: #192a56;
   text-decoration: none;
   transition: 0.3s ease-in-out;
@@ -33,30 +37,46 @@ const DrawerNavigationLinks = styled.a`
     opacity: 0.7;
     transition: 0.3s ease-in-out;
   }
+  &.link-active {
+    opacity: 0.7;
+  }
 `;
 
 const Drawer: React.FC = () => {
   const [menuToggle, setMenuToggle] = useState<boolean>(false);
-  const [navigationLinks, setNavigationLinks] = useState<number[]>([1, 2, 3]);
+
+  const navigationLinks: Array<QuizLinks> = [
+    { to: "/", label: "List", exact: true },
+    { to: "/auth", label: "Auth", exact: false },
+    { to: "/quiz-creator", label: "Quiz Creator", exact: false },
+  ];
+
   const DrawerClasses = classNames({
     close: !menuToggle,
   });
+
   const onMenuToggle = () => {
     setMenuToggle(!menuToggle);
   };
-  const renderLinks = (navigationLinks: number[]) => {
+
+  const renderLinks = (navigationLinks: any) => {
     return (
-      <ul>
-        {navigationLinks.map((link, i) => {
+      <DrawerNavigationLinksArray>
+        {navigationLinks.map((link: any, i: number) => {
           return (
-            <li key={i}>
-              <DrawerNavigationLinks href="#">
-                Link {link}
+            <DrawerNavigationLinksWrapper key={i}>
+              <DrawerNavigationLinks
+                to={link.to}
+                exact={link.exact}
+                onClick={() => onMenuToggle()}
+                activeClassName={"link-active"}
+              >
+                {link.label}
               </DrawerNavigationLinks>
-            </li>
+            </DrawerNavigationLinksWrapper>
           );
         })}
-      </ul>
+      </DrawerNavigationLinksArray>
     );
   };
   return (
@@ -65,7 +85,6 @@ const Drawer: React.FC = () => {
         {renderLinks(navigationLinks)}
         <MenuToggle menuToggle={menuToggle} onClickHandler={onMenuToggle} />
       </DrawerNavigation>
-
       {menuToggle ? <BackDrop onClickHandler={onMenuToggle} /> : null}
     </>
   );

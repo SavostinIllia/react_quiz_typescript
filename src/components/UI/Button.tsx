@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 interface ButtonProps {
   buttonClass: "primary" | "success" | "error";
-  onClick?(): void;
+  onClick?(props: any): void;
   disabled?: boolean;
   text: string;
 }

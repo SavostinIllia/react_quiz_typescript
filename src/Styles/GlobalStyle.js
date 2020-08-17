@@ -8,7 +8,8 @@ const GlobalStyle = createGlobalStyle`
 */
 
 :root {
-    --whiteTextColor: #fff
+    --whiteTextColor: #fff;
+    --transitionDelay: all .3s ease-in-out;
 }
 
 html, body, div, span, applet, object, iframe,

@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import classNames from "classnames";
 import Button from "../UI/Button";
-
+import { Link } from "react-router-dom";
 interface FinishedQuizProps {
   quiz: Pick<QuizData, "question" | "id">[];
   results: null | { [id: number]: "success" | "error" };
@@ -90,7 +90,9 @@ const FinishedQuiz: React.FC<FinishedQuizProps> = ({
         onClick={() => onRepeatHandler()}
         text="Repeat Quiz"
       />
-      <Button buttonClass="success" text="Return to Quiz List" />
+      <Link to={"/"}>
+        <Button buttonClass="success" text="Return to Quiz List" />
+      </Link>
     </FinishedQuizWrapper>
   );
 };
