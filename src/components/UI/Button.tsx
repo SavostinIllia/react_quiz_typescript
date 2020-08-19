@@ -1,15 +1,15 @@
 import React from "react";
 import classNames from "classnames";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 interface ButtonProps {
   buttonClass: "primary" | "success" | "error";
-  onClick?(props: any): void;
+  onClick?(props: any): any;
   disabled?: boolean;
   text: string;
 }
 
-const ButtonStyles = styled.button`
+const ButtonStyles = styled.button<{ disabled: boolean }>`
   color: var(--whiteTextColor);
   font-size: 20px;
   border: 1.5px solid var(--whiteTextColor);
@@ -18,17 +18,24 @@ const ButtonStyles = styled.button`
   padding: 5px 10px;
   transition: 0.3s ease-in-out;
   margin-right: 15px;
-  &:hover,
-  &:focus {
-    box-shadow: inset -7px -7px 6px -5px rgba(0, 0, 0, 0.75);
-    transition: 0.3s ease-in-out;
-  }
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+  ${({ disabled }) =>
+    !disabled &&
+    css`
+      &:hover,
+      &:focus {
+        box-shadow: inset -7px -7px 6px -5px rgba(0, 0, 0, 0.75);
+        transition: 0.3s ease-in-out;
+      } :
+
+    `}
 
   &.primary {
     background: #2980b9;
   }
   &.success {
     background: #2ecc71;
+
     color: #000;
   }
   &.error {
@@ -47,10 +54,11 @@ const Button: React.FC<ButtonProps> = ({
     success: buttonClass === "success",
     error: buttonClass === "error",
   });
+  console.log("disabled :>> ", disabled);
 
   return (
     <ButtonStyles
-      disabled={disabled}
+      disabled={!disabled}
       onClick={onClick}
       className={buttonClasses}
     >

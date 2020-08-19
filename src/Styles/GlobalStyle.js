@@ -10,6 +10,7 @@ const GlobalStyle = createGlobalStyle`
 :root {
     --whiteTextColor: #fff;
     --transitionDelay: all .3s ease-in-out;
+    --errorColor: #ff6b6b;
 }
 
 html, body, div, span, applet, object, iframe,

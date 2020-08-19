@@ -40,7 +40,7 @@ const QuizListLink = styled(NavLink)`
   }
 `;
 
-const QuizList: React.FC<QuizListProps> = ({}) => {
+const QuizList: React.FC<QuizListProps> = () => {
   const renderQuizes = () => {
     return [1, 2, 3].map((quiz, i) => {
       return (

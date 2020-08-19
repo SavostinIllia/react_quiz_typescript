@@ -1,5 +1,4 @@
 interface FormControlsEmail {
-  key: number;
   value: string;
   type: string;
   label: string;
@@ -18,6 +17,8 @@ interface Validation {
 type FormControlsPassword = Pick<FormControlsEmail, Omit<Validation, "email">>;
 
 interface FormControls {
-  email: FormControlsEmail;
-  password: FormControlsPassword;
+  formControls: {
+    email: FormControlsEmail;
+    password: FormControlsPassword;
+  };
 }
