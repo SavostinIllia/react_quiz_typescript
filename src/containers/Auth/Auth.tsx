@@ -7,7 +7,7 @@ const is = require("is_js");
 const AuthSection = styled.section`
   display: flex;
   flex-wrap: wrap;
-  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
   background: linear-gradient(83deg, #0b183c, #067b87 48%, #0f7);
   padding-top: 150px;
@@ -188,13 +188,13 @@ const App: React.FC = () => {
             buttonClass="success"
             text="Log In"
             onClick={(e: MouseEvent) => logInHandler(e)}
-            disabled={isFormValid}
+            disabled={!isFormValid}
           />
           <Button
             buttonClass="primary"
             text="Register"
             onClick={(e: MouseEvent) => registerHandler(e)}
-            disabled={isFormValid}
+            disabled={!isFormValid}
           />
         </AuthForm>
       </AuthContainer>

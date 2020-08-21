@@ -7,9 +7,10 @@ interface ButtonProps {
   onClick?(props: any): any;
   disabled?: boolean;
   text: string;
+  type?: string;
 }
 
-const ButtonStyles = styled.button<{ disabled: boolean }>`
+const ButtonStyles = styled.button<{ disabled?: boolean }>`
   color: var(--whiteTextColor);
   font-size: 20px;
   border: 1.5px solid var(--whiteTextColor);
@@ -20,15 +21,21 @@ const ButtonStyles = styled.button<{ disabled: boolean }>`
   margin-right: 15px;
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   ${({ disabled }) =>
-    !disabled &&
-    css`
+    (disabled &&
+      css`
+        &:hover {
+          cursor: not-allowed;
+        }
+      `) ||
+    (!disabled &&
+      css`
       &:hover,
       &:focus {
         box-shadow: inset -7px -7px 6px -5px rgba(0, 0, 0, 0.75);
         transition: 0.3s ease-in-out;
       } :
 
-    `}
+    `)};
 
   &.primary {
     background: #2980b9;
@@ -54,11 +61,9 @@ const Button: React.FC<ButtonProps> = ({
     success: buttonClass === "success",
     error: buttonClass === "error",
   });
-  console.log("disabled :>> ", disabled);
-
   return (
     <ButtonStyles
-      disabled={!disabled}
+      disabled={disabled}
       onClick={onClick}
       className={buttonClasses}
     >

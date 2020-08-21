@@ -39,8 +39,8 @@ const InputLabel = styled.label`
 `;
 const FormInput = styled.input<{ touched?: boolean }>`
   display: block;
-  width: 100%;
-  max-width: 80%;
+  width: calc(100% - 30px);
+
   color: var(--whiteTextColor);
   padding: 7px 15px;
   background: transparent;
