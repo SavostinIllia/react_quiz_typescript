@@ -4,12 +4,18 @@ import Button from "../../components/UI/Button";
 import {
   createControl,
   createAnswerOption,
+  validate,
+  validateForm,
 } from "../../quizCreatorHelper/quizCreatorhelper";
 import Input from "../../components/UI/Input";
 import Select from "../../components/UI/Select";
 
-interface QuizCreatorProps {}
-
+interface QuizArray {
+  question: string;
+  id: number;
+  rightAnswer: number;
+  answers: { text: string; id: number | undefined }[];
+}
 const QuizCreatorSection = styled.section`
   display: flex;
   flex-wrap: wrap;
@@ -52,14 +58,14 @@ function createFormFormControls() {
 }
 
 const initialState = {
-  quiz: [],
+  isFormValid: false,
   formControls: createFormFormControls(),
 };
 
-const QuizCreator: React.FC<QuizCreatorProps> = () => {
+const QuizCreator: React.FC = () => {
   const [quizState, setQuizState] = useState(initialState);
   const [rightAnswerId, setRightAnswerId] = useState<number>(1);
-
+  const [quizArray, setQuizArray] = useState<QuizArray[]>([]);
   const onSubmitHandler = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("SUBMITED :>> ");
@@ -67,28 +73,81 @@ const QuizCreator: React.FC<QuizCreatorProps> = () => {
 
   const onAddQuestionHandler = (e: MouseEvent) => {
     e.preventDefault();
+    const quiz: any = [...quizArray];
+    const index = quiz.length + 1;
+
+    const {
+      question,
+      option1,
+      option2,
+      option3,
+      option4,
+    } = quizState.formControls;
+
+    const questionItem: QuizArray = {
+      question: question.value,
+      id: index,
+      rightAnswer: rightAnswerId,
+      answers: [
+        { text: option1.value, id: option1.id },
+        { text: option2.value, id: option2.id },
+        { text: option3.value, id: option3.id },
+        { text: option4.value, id: option4.id },
+      ],
+    };
+
+    quiz.push(questionItem);
+
+    setQuizArray(quiz);
+    setRightAnswerId(1);
+    setQuizState((prevState) => {
+      return {
+        ...prevState,
+        formControls: createFormFormControls(),
+        isFormValid: false,
+      };
+    });
   };
 
   const onCreateQuizHandler = (e: MouseEvent) => {
     e.preventDefault();
-    console.log("Quiz CREATED :>> ");
+    console.log("quizArray : >>", quizArray);
   };
 
   const onChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement>,
     controlName: string
-  ) => {};
+  ) => {
+    const formControls = { ...quizState.formControls };
+    //@ts-ignore
+    const control = { ...formControls[controlName] };
+    control.touched = true;
+    control.value = e.target.value;
+    control.valid = validate(control.value, control.validation.required);
+    //@ts-ignore
+    formControls[controlName] = control;
+
+    quizState.formControls = formControls;
+
+    setQuizState((prevState) => {
+      return {
+        ...prevState,
+        formControls,
+        isFormValid: validateForm(formControls),
+      };
+    });
+  };
 
   const selectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const rightAnswerId = +e.target.value;
     setRightAnswerId(rightAnswerId);
   };
-
   const renderControls = () => {
     return Object.keys(quizState.formControls).map(
       (controlName: string, index: number) => {
         //@ts-ignore
         const control = quizState.formControls[controlName];
+        // console.log("control.validation :>> ", control.validation);
         return (
           <Input
             key={index}
@@ -107,7 +166,7 @@ const QuizCreator: React.FC<QuizCreatorProps> = () => {
       }
     );
   };
-
+  // console.log("object :>> ", quizState);
   const selectComponent: JSX.Element = (
     <Select
       label="Choose correct answer ID"
@@ -132,17 +191,20 @@ const QuizCreator: React.FC<QuizCreatorProps> = () => {
           <Button
             buttonClass="primary"
             text="Add question"
-            disabled={false}
+            disabled={!quizState.isFormValid}
             onClick={(e: MouseEvent) => onAddQuestionHandler(e)}
             type="primary"
           />
           <Button
             buttonClass="primary"
             text="Create Quiz"
-            disabled={true}
+            disabled={quizArray.length === 0}
             onClick={(e: MouseEvent) => onCreateQuizHandler(e)}
             type="primary"
           />
+          {!quizArray.length ? null : (
+            <span>quiz contains {quizArray.length} items</span>
+          )}
         </QuizCreatorForm>
       </QuizCreatorContainer>
     </QuizCreatorSection>

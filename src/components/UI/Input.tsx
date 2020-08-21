@@ -58,7 +58,7 @@ const InputErrorMessage = styled.span`
   font-size: 25px;
   color: #ff6b6b;
   display: block;
-  padding: 15px 0;
+  padding: 15px 0 0 0;
 `;
 const Input: React.FC<InputProps> = ({
   label,
