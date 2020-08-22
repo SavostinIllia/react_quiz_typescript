@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
 import styled from "styled-components";
+import axios from "axios";
 const is = require("is_js");
 
 const AuthSection = styled.section`
@@ -88,15 +89,46 @@ const initialState: FormControls = {
 const App: React.FC = () => {
   const [formControls, setFormControls] = useState<FormControls>(initialState);
   const [isFormValid, setIsFormValid] = useState<boolean>(false);
+  const [isRegisterLoading, setIsRegisterLoading] = useState<boolean>(false);
 
-  const logInHandler = (e: MouseEvent) => {
+  const logInHandler = async (e: MouseEvent) => {
     e.preventDefault();
-    console.log("LOGINED");
+    const authData = {
+      email: formControls.email.value,
+      password: formControls.password.value,
+      returnSecureToken: true,
+    };
+    try {
+      setIsRegisterLoading(true);
+      const response = await axios.post(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDBxQlrYg-i-k_7IFNSWK_xHTT0v5tNhOg`,
+        authData
+      );
+      setIsRegisterLoading(false);
+      console.log("response", response);
+    } catch (err) {
+      console.log("err", err);
+    }
   };
 
-  const registerHandler = (e: MouseEvent) => {
+  const registerHandler = async (e: MouseEvent) => {
     e.preventDefault();
-    console.log("REGISTRED");
+    const authData = {
+      email: formControls.email.value,
+      password: formControls.password.value,
+      returnSecureToken: true,
+    };
+    try {
+      setIsRegisterLoading(true);
+      const response = await axios.post(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=
+          AIzaSyDBxQlrYg-i-k_7IFNSWK_xHTT0v5tNhOg`,
+        authData
+      );
+      setIsRegisterLoading(false);
+    } catch (err) {
+      console.log("err", err);
+    }
   };
 
   const onsubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
@@ -189,12 +221,14 @@ const App: React.FC = () => {
             text="Log In"
             onClick={(e: MouseEvent) => logInHandler(e)}
             disabled={!isFormValid}
+            isLoading={isRegisterLoading}
           />
           <Button
             buttonClass="primary"
             text="Register"
             onClick={(e: MouseEvent) => registerHandler(e)}
             disabled={!isFormValid}
+            isLoading={isRegisterLoading}
           />
         </AuthForm>
       </AuthContainer>
