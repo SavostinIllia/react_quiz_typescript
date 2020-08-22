@@ -1,7 +1,7 @@
 export function createControl(
   config: { label: string; errorMessage: string; id?: number },
   validation: { required: boolean }
-) {
+): Control {
   return {
     ...config,
     validation,
@@ -11,7 +11,7 @@ export function createControl(
   };
 }
 
-export function createAnswerOption(optionId: number) {
+export function createAnswerOption(optionId: number): Control {
   return createControl(
     {
       label: `Answer Option ${optionId}`,

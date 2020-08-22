@@ -2,12 +2,14 @@ import React from "react";
 import classNames from "classnames";
 import styled, { css } from "styled-components";
 
+import Loader from "./Loader";
 interface ButtonProps {
   buttonClass: "primary" | "success" | "error";
   onClick?(props: any): any;
   disabled?: boolean;
   text: string;
   type?: string;
+  isLoading?: boolean;
 }
 
 const ButtonStyles = styled.button<{ disabled?: boolean }>`
@@ -16,9 +18,10 @@ const ButtonStyles = styled.button<{ disabled?: boolean }>`
   border: 1.5px solid var(--whiteTextColor);
   border-radius: 5px;
   background: transparent;
-  padding: 5px 10px;
+  padding: 5px 20px;
   transition: 0.3s ease-in-out;
   margin-right: 15px;
+  position: relative;
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   ${({ disabled }) =>
     (disabled &&
@@ -55,19 +58,21 @@ const Button: React.FC<ButtonProps> = ({
   buttonClass,
   onClick,
   text,
+  isLoading,
 }) => {
   const buttonClasses = classNames({
     primary: buttonClass === "primary",
     success: buttonClass === "success",
     error: buttonClass === "error",
   });
+
   return (
     <ButtonStyles
       disabled={disabled}
       onClick={onClick}
       className={buttonClasses}
     >
-      {text}
+      {isLoading ? <Loader isBigLoader={false} /> : `${text}`}
     </ButtonStyles>
   );
 };

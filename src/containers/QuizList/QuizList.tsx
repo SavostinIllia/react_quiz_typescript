@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
+import axios from "axios";
+import Loader from "../../components/UI/Loader";
 
-interface QuizListProps {}
-
+// STYLES
 const QiuzListWrapper = styled.section`
   display: flex;
   flex-wrap: wrap;
@@ -39,23 +40,55 @@ const QuizListLink = styled(NavLink)`
     transition: var(--transitionDelay);
   }
 `;
+// END STYLES
 
-const QuizList: React.FC<QuizListProps> = () => {
+interface Quizes {
+  id: string;
+  name: string;
+}
+
+const QuizList: React.FC = () => {
+  const [quizes, setQuiz] = useState<Quizes[]>([]);
+  const [quizesLoading, setQuizesLoading] = useState<boolean>(false);
+
   const renderQuizes = () => {
-    return [1, 2, 3].map((quiz, i) => {
+    return quizes.map((quiz: Quizes) => {
       return (
-        <QuizListLinkWrapper key={i}>
-          <QuizListLink to={"/quiz/" + quiz}> Quiz # {quiz}</QuizListLink>
+        <QuizListLinkWrapper key={quiz.id}>
+          <QuizListLink to={"/quiz/" + quiz.id}>{quiz.name}</QuizListLink>
         </QuizListLinkWrapper>
       );
     });
   };
 
+  useEffect(() => {
+    const fetchQuizList = async () => {
+      setQuizesLoading(true);
+      const quizList = await axios.get(
+        `https://reactquizhooks.firebaseio.com/quiz.json`
+      );
+      const quizes: Quizes[] = [];
+      Object.keys(quizList.data).forEach((key: string, index: number) => {
+        quizes.push({
+          id: key,
+          name: `Quiz # ${index + 1}`,
+        });
+      });
+      setQuizesLoading(false);
+      setQuiz(quizes);
+    };
+    fetchQuizList();
+  }, []);
+
   return (
     <QiuzListWrapper>
       <QuizListContainer>
         <QuizListTitle>QuizList</QuizListTitle>
-        <QuizListArray>{renderQuizes()}</QuizListArray>
+        {quizesLoading ? (
+          <Loader isBigLoader={true} />
+        ) : (
+          <QuizListArray>{renderQuizes()}</QuizListArray>
+        )}
       </QuizListContainer>
     </QiuzListWrapper>
   );

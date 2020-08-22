@@ -9,13 +9,26 @@ import {
 } from "../../quizCreatorHelper/quizCreatorhelper";
 import Input from "../../components/UI/Input";
 import Select from "../../components/UI/Select";
-
+import axios from "axios";
 interface QuizArray {
   question: string;
   id: number;
   rightAnswer: number;
   answers: { text: string; id: number | undefined }[];
 }
+
+interface InitialState {
+  isFormValid: boolean;
+  formControls: {
+    question: Control;
+    option1: Control;
+    option2: Control;
+    option3: Control;
+    option4: Control;
+  };
+}
+
+// STYLES
 const QuizCreatorSection = styled.section`
   display: flex;
   flex-wrap: wrap;
@@ -44,6 +57,21 @@ const QuizCreatorForm = styled.form`
   flex-wrap: wrap;
 `;
 
+const QuizStatus = styled.span`
+  margin-left: auto;
+  font-size: 30px;
+  color: #fff;
+  vertical-align: middle;
+  display: flex;
+  align-items: center;
+`;
+const QuizStatusIdentifier = styled.strong`
+  margin: 0 5px;
+  color: #192a56;
+`;
+
+// END STYLES
+
 function createFormFormControls() {
   return {
     question: createControl(
@@ -57,15 +85,17 @@ function createFormFormControls() {
   };
 }
 
-const initialState = {
+const initialState: InitialState = {
   isFormValid: false,
   formControls: createFormFormControls(),
 };
 
 const QuizCreator: React.FC = () => {
-  const [quizState, setQuizState] = useState(initialState);
+  const [quizState, setQuizState] = useState<InitialState>(initialState);
   const [rightAnswerId, setRightAnswerId] = useState<number>(1);
   const [quizArray, setQuizArray] = useState<QuizArray[]>([]);
+  const [quizAddLoad, setQuizLoad] = useState<boolean>(false);
+
   const onSubmitHandler = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("SUBMITED :>> ");
@@ -73,7 +103,8 @@ const QuizCreator: React.FC = () => {
 
   const onAddQuestionHandler = (e: MouseEvent) => {
     e.preventDefault();
-    const quiz: any = [...quizArray];
+
+    const quiz: QuizArray[] = [...quizArray];
     const index = quiz.length + 1;
 
     const {
@@ -109,9 +140,30 @@ const QuizCreator: React.FC = () => {
     });
   };
 
-  const onCreateQuizHandler = (e: MouseEvent) => {
+  const onCreateQuizHandler = async (e: MouseEvent) => {
     e.preventDefault();
-    console.log("quizArray : >>", quizArray);
+
+    try {
+      setQuizLoad(true);
+      const response = await axios.post(
+        `https://reactquizhooks.firebaseio.com/quiz.json`,
+        quizArray
+      );
+      if (response.status === 200) {
+        setQuizLoad(false);
+        setRightAnswerId(1);
+        setQuizState((prevState) => {
+          return {
+            ...prevState,
+            formControls: createFormFormControls(),
+            isFormValid: false,
+          };
+        });
+        setQuizArray([]);
+      }
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
   };
 
   const onChangeHandler = (
@@ -142,12 +194,12 @@ const QuizCreator: React.FC = () => {
     const rightAnswerId = +e.target.value;
     setRightAnswerId(rightAnswerId);
   };
+
   const renderControls = () => {
     return Object.keys(quizState.formControls).map(
       (controlName: string, index: number) => {
         //@ts-ignore
         const control = quizState.formControls[controlName];
-        // console.log("control.validation :>> ", control.validation);
         return (
           <Input
             key={index}
@@ -166,7 +218,7 @@ const QuizCreator: React.FC = () => {
       }
     );
   };
-  // console.log("object :>> ", quizState);
+
   const selectComponent: JSX.Element = (
     <Select
       label="Choose correct answer ID"
@@ -201,9 +253,17 @@ const QuizCreator: React.FC = () => {
             disabled={quizArray.length === 0}
             onClick={(e: MouseEvent) => onCreateQuizHandler(e)}
             type="primary"
+            isLoading={quizAddLoad}
           />
+
           {!quizArray.length ? null : (
-            <span>quiz contains {quizArray.length} items</span>
+            <QuizStatus>
+              quiz contains
+              <QuizStatusIdentifier>
+                {quizArray.length}
+              </QuizStatusIdentifier>{" "}
+              question
+            </QuizStatus>
           )}
         </QuizCreatorForm>
       </QuizCreatorContainer>
