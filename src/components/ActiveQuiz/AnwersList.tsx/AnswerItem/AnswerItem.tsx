@@ -49,5 +49,3 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
   );
 };
 export default AnswerItem;
-
-// <{ answerState: null | "success" | "error" }>

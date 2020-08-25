@@ -1,9 +1,10 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import ActiveQuiz from "../../components/ActiveQuiz/ActiveQuiz";
 import styled from "styled-components";
 import FinishedQuiz from "../../components/FinishedQuiz/FinishedQuiz";
-
-interface QuizProps {}
+import axios from "axios";
+import Loader from "../../components/UI/Loader";
+import { RouteComponentProps } from "react-router";
 
 const QuizContainer = styled.section`
   min-height: 100vh;
@@ -14,7 +15,6 @@ const QuizContainer = styled.section`
     rgba(80, 230, 185, 1) 100%
   );
 `;
-
 const QuizTitle = styled.h2`
   font-weight: 600;
   font-size: 30px;
@@ -29,118 +29,138 @@ const ActiveQuizWrapper = styled.div`
   padding-top: 150px;
   max-width: 900px;
   margin: 0 auto;
+  justify-content: center;
 `;
 
-class Quiz extends Component<QuizProps> {
-  state: QuizState = {
-    isFinished: false,
-    activeQuestion: 0,
-    answerState: null,
-    results: {},
-    quiz: [
-      {
-        question: "2 + 2 * 2?",
-        rightAnswerId: 4,
-        id: 1,
+interface MatchParams {
+  id: string;
+}
+interface MatchProps extends RouteComponentProps<MatchParams> {}
 
-        answers: [
-          { text: "4", id: 1 },
-          { text: "5", id: 2 },
-          { text: "8", id: 3 },
-          { text: "6", id: 4 },
-        ],
-      },
-      {
-        question: "What 2?",
-        rightAnswerId: 1,
-
-        id: 2,
-        answers: [
-          { text: "Answer 1", id: 1 },
-          { text: "Answer 2", id: 2 },
-          { text: "Answer 3", id: 3 },
-          { text: "Answer 4", id: 4 },
-        ],
-      },
+const initialState: QuizState = {
+  activeQuestion: 0,
+  answerState: null,
+  results: {},
+};
+const initialQuiz: QuizData[] = [
+  {
+    question: "",
+    rightAnswer: 1,
+    id: 1,
+    answers: [
+      { text: "", id: 1 },
+      { text: "", id: 2 },
+      { text: "", id: 3 },
+      { text: "", id: 4 },
     ],
-  };
+  },
+];
 
-  onAnswerClickHandler = (answerId: number) => {
-    const question = this.state.quiz[this.state.activeQuestion];
-    const results = this.state.results;
+const Quiz: React.FC<MatchProps> = ({ match }) => {
+  const [quizState, setQuizState] = useState<QuizState>(initialState);
+  const [isFinished, setIsFinished] = useState<boolean>(false);
+  const [quiz, setQuiz] = useState<QuizData[]>(initialQuiz);
+  const [quizLoaded, setQuizLoaded] = useState<boolean>(true);
 
-    if (question.rightAnswerId === answerId) {
+  useEffect(() => {
+    const fetchQuizes = async () => {
+      const response = await axios.get(
+        `https://reactquizhooks.firebaseio.com/quiz/${match.params.id}.json`
+      );
+      const quiz: QuizData[] = response.data;
+      setQuizLoaded(false);
+      setQuiz(quiz);
+    };
+    fetchQuizes();
+  });
+
+  const onAnswerClickHandler = (answerId: number) => {
+    if (quizState.answerState) {
+      const key: number = +Object.keys(quizState.answerState)[0];
+      if (quizState.answerState[key] === "success") {
+        return;
+      }
+    }
+    const question = quiz[quizState.activeQuestion];
+    const results = quizState.results;
+
+    if (question.rightAnswer === answerId) {
       if (!results![question.id]) {
         results![question.id] = "success";
       }
-      this.setState({
-        answerState: { [answerId]: "success" },
-        results,
+      setQuizState((prev) => {
+        return {
+          ...prev,
+          answerState: { [answerId]: "success" },
+          results,
+        };
       });
-      const timer: ReturnType<typeof setTimeout> = setTimeout(() => {
-        if (this.isQuizFinished()) {
-          this.setState({
-            isFinished: true,
-          } as QuizState);
+      const answerTimer: ReturnType<typeof setTimeout> = setTimeout(() => {
+        if (isQuizFinished()) {
+          setIsFinished(true);
         } else {
-          this.setState({
-            activeQuestion: this.state.activeQuestion + 1,
-            answerState: null,
-          } as QuizState);
+          setQuizState((prev) => {
+            return {
+              ...prev,
+              activeQuestion: prev.activeQuestion + 1,
+              answerState: null,
+            };
+          });
         }
-
-        window.clearTimeout(timer);
-      }, 800);
+        window.clearTimeout(answerTimer);
+      }, 500);
     } else {
       results![question.id] = "error";
-      this.setState({
-        answerState: { [answerId]: "error" },
-        results,
+      setQuizState((prev) => {
+        return {
+          ...prev,
+          answerState: { [answerId]: "error" },
+          results,
+        };
       });
     }
   };
 
-  isQuizFinished() {
-    return this.state.activeQuestion + 1 === this.state.quiz.length;
-  }
-
-  onRepeatHandler = () => {
-    this.setState({
-      isFinished: false,
-      activeQuestion: 0,
-      answerState: null,
-      results: {},
-    });
+  const isQuizFinished = () => {
+    return quizState.activeQuestion + 1 === quiz.length;
   };
 
-  componentDidMount() {
-    // console.log("Quiz ID", this.props.match.params.id);
-  }
+  const onRepeatHandler = () => {
+    setQuizState((prev) => {
+      return {
+        ...prev,
+        activeQuestion: 0,
+        answerState: null,
+        results: {},
+      };
+    });
+    setIsFinished(false);
+  };
 
-  render() {
-    return (
-      <QuizContainer>
-        <ActiveQuizWrapper>
-          <QuizTitle>Quiz</QuizTitle>
-          {this.state.isFinished ? (
-            <FinishedQuiz
-              quiz={this.state.quiz}
-              results={this.state.results}
-              onRepeatHandler={this.onRepeatHandler}
-            />
-          ) : (
-            <ActiveQuiz
-              answers={this.state.quiz[this.state.activeQuestion].answers}
-              question={this.state.quiz[this.state.activeQuestion].question}
-              onAnswerClick={this.onAnswerClickHandler}
-              answerNumber={this.state.activeQuestion + 1}
-              answerState={this.state.answerState}
-              queistionLength={this.state.quiz.length}
-            />
-          )}
-        </ActiveQuizWrapper>
-      </QuizContainer>
-    );
-  }
-}
+  return (
+    <QuizContainer>
+      <ActiveQuizWrapper>
+        <QuizTitle>Quiz</QuizTitle>
+        {quizLoaded ? (
+          <Loader isBigLoader={true} />
+        ) : isFinished ? (
+          <FinishedQuiz
+            quiz={quiz}
+            results={quizState.results}
+            onRepeatHandler={onRepeatHandler}
+          />
+        ) : (
+          <ActiveQuiz
+            answers={quiz[quizState.activeQuestion].answers}
+            question={quiz[quizState.activeQuestion].question}
+            onAnswerClick={onAnswerClickHandler}
+            answerNumber={quizState.activeQuestion + 1}
+            answerState={quizState.answerState}
+            queistionLength={quiz.length}
+          />
+        )}
+      </ActiveQuizWrapper>
+    </QuizContainer>
+  );
+};
 export default Quiz;

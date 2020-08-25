@@ -51,16 +51,6 @@ const QuizList: React.FC = () => {
   const [quizes, setQuiz] = useState<Quizes[]>([]);
   const [quizesLoading, setQuizesLoading] = useState<boolean>(false);
 
-  const renderQuizes = () => {
-    return quizes.map((quiz: Quizes) => {
-      return (
-        <QuizListLinkWrapper key={quiz.id}>
-          <QuizListLink to={"/quiz/" + quiz.id}>{quiz.name}</QuizListLink>
-        </QuizListLinkWrapper>
-      );
-    });
-  };
-
   useEffect(() => {
     const fetchQuizList = async () => {
       setQuizesLoading(true);
@@ -79,6 +69,16 @@ const QuizList: React.FC = () => {
     };
     fetchQuizList();
   }, []);
+
+  const renderQuizes = () => {
+    return quizes.map((quiz: Quizes) => {
+      return (
+        <QuizListLinkWrapper key={quiz.id}>
+          <QuizListLink to={"/quiz/" + quiz.id}>{quiz.name}</QuizListLink>
+        </QuizListLinkWrapper>
+      );
+    });
+  };
 
   return (
     <QiuzListWrapper>

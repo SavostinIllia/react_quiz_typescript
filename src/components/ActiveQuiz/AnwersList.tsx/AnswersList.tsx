@@ -1,6 +1,7 @@
 import React from "react";
-import AnswerItem from "./AnswerItem/AnswerItem";
+// import AnswerItem from "./AnswerItem/AnswerItem";
 import styled from "styled-components";
+import AnswerItem from "./AnswerItem/AnswerItem";
 
 interface AnswersListProps {
   answers: QuizAnswers[];

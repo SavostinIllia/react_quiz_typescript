@@ -34,54 +34,33 @@ const AuthForm = styled.form`
   flex-direction: row;
 `;
 
-interface FormControlsEmail {
-  value: string;
-  type: string;
-  label: string;
-  errorMessage: string;
-  valid: boolean;
-  touched: boolean;
-  validation: Validation;
-}
-
-interface Validation {
-  required: boolean;
-  email?: true;
-  minLength?: number;
-}
-
-interface FormControlsPassword extends FormControlsEmail {
-  validation: Pick<Validation, "required" | "minLength">;
-}
-
-interface FormControls {
-  email: FormControlsEmail;
-  password: FormControlsPassword;
-}
-
 const initialState: FormControls = {
-  email: {
-    value: "",
-    type: "email",
-    label: "Email",
-    errorMessage: "Enter valid email",
-    valid: false,
-    touched: false,
-    validation: {
-      required: true,
-      email: true,
+  formControls: {
+    email: {
+      value: "",
+      type: "email",
+      label: "Email",
+      errorMessage: "Enter valid email",
+      valid: false,
+      touched: false,
+      logInRegisterError: "",
+      validation: {
+        required: true,
+        email: true,
+      },
     },
-  },
-  password: {
-    value: "",
-    type: "password",
-    label: "Password",
-    errorMessage: "Enter valid password",
-    valid: false,
-    touched: false,
-    validation: {
-      required: true,
-      minLength: 6,
+    password: {
+      value: "",
+      type: "password",
+      label: "Password",
+      errorMessage: "Enter valid password",
+      valid: false,
+      logInRegisterError: "",
+      touched: false,
+      validation: {
+        required: true,
+        minLength: 6,
+      },
     },
   },
 };
@@ -93,6 +72,8 @@ const App: React.FC = () => {
 
   const logInHandler = async (e: MouseEvent) => {
     e.preventDefault();
+    const formControls = { ...initialState.formControls };
+    //@ts-ignore
     const authData = {
       email: formControls.email.value,
       password: formControls.password.value,
@@ -100,19 +81,34 @@ const App: React.FC = () => {
     };
     try {
       setIsRegisterLoading(true);
-      const response = await axios.post(
+      await axios.post(
         `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDBxQlrYg-i-k_7IFNSWK_xHTT0v5tNhOg`,
         authData
       );
       setIsRegisterLoading(false);
-      console.log("response", response);
     } catch (err) {
-      console.log("err", err);
+      return Object.keys(formControls).map((controlName: string) => {
+        //@ts-ignore
+        const control = formControls[controlName];
+        control.valid = false;
+        control.value = "";
+        control.errorMessage = "Email or Password is incorrect";
+        //@ts-ignore
+        formControls[controlName] = control;
+        setFormControls((prev) => {
+          return {
+            ...prev,
+            formControls,
+          };
+        });
+        setIsRegisterLoading(false);
+      });
     }
   };
 
   const registerHandler = async (e: MouseEvent) => {
     e.preventDefault();
+    const formControls = { ...initialState.formControls };
     const authData = {
       email: formControls.email.value,
       password: formControls.password.value,
@@ -120,14 +116,14 @@ const App: React.FC = () => {
     };
     try {
       setIsRegisterLoading(true);
-      const response = await axios.post(
+      await axios.post(
         `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=
           AIzaSyDBxQlrYg-i-k_7IFNSWK_xHTT0v5tNhOg`,
         authData
       );
       setIsRegisterLoading(false);
     } catch (err) {
-      console.log("err", err);
+      setIsRegisterLoading(false);
     }
   };
 
@@ -159,36 +155,40 @@ const App: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     controlName: string
   ) => {
-    const formsControlsValidated = { ...formControls };
+    const formControls = { ...initialState.formControls };
+    //@ts-ignore
+    const control: FormControlsEmail = formControls[controlName];
 
-    const control: FormControlsEmail = {
-      //@ts-ignore
-      ...formsControlsValidated[controlName],
-    };
     control.value = e.target.value;
     control.touched = true;
     control.valid = validateControl(control.value, control.validation);
-    //@ts-ignore
-    formsControlsValidated[controlName] = control;
 
-    // console.log("control.valid :>> ", control.valid);
+    //@ts-ignore
+    formControls[controlName] = control;
+
     let isFormValidChecked = true;
 
-    Object.keys(formsControlsValidated).forEach((name) => {
+    Object.keys(formControls).forEach((name) => {
       isFormValidChecked =
         //@ts-ignore
-        formsControlsValidated[name].valid && isFormValidChecked;
+        formControls[name].valid && isFormValidChecked;
     });
+
     setIsFormValid(isFormValidChecked);
-    setFormControls(formsControlsValidated);
+    setFormControls((prev) => {
+      return {
+        ...prev,
+        formControls,
+      };
+    });
   };
 
   const renderInputs = () => {
-    return Object.keys(formControls).map(
+    const formControlsRender = { ...formControls.formControls };
+    return Object.keys(formControlsRender).map(
       (controlName: string, index: number) => {
         //@ts-ignore
-        const control = formControls[controlName];
-
+        const control = formControlsRender[controlName];
         return (
           <Input
             key={index}

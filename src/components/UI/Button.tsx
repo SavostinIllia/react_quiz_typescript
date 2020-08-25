@@ -12,7 +12,7 @@ interface ButtonProps {
   isLoading?: boolean;
 }
 
-const ButtonStyles = styled.button<{ disabled?: boolean }>`
+const ButtonComponent = styled.button<{ disabled?: boolean }>`
   color: var(--whiteTextColor);
   font-size: 20px;
   border: 1.5px solid var(--whiteTextColor);
@@ -32,8 +32,8 @@ const ButtonStyles = styled.button<{ disabled?: boolean }>`
       `) ||
     (!disabled &&
       css`
-      &:hover,
-      &:focus {
+      &:hover
+       {
         box-shadow: inset -7px -7px 6px -5px rgba(0, 0, 0, 0.75);
         transition: 0.3s ease-in-out;
       } :
@@ -67,13 +67,13 @@ const Button: React.FC<ButtonProps> = ({
   });
 
   return (
-    <ButtonStyles
+    <ButtonComponent
       disabled={disabled}
       onClick={onClick}
       className={buttonClasses}
     >
       {isLoading ? <Loader isBigLoader={false} /> : `${text}`}
-    </ButtonStyles>
+    </ButtonComponent>
   );
 };
 

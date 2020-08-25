@@ -1,7 +1,6 @@
 type QuizData = {
   question: string;
-  rightAnswerId: number;
-
+  rightAnswer: number;
   id: number;
   answers: QuizAnswers[];
 };
@@ -12,9 +11,7 @@ type QuizAnswers = {
 };
 
 interface QuizState {
-  isFinished: boolean;
   activeQuestion: number;
   results: null | { [id: number]: "success" | "error" };
   answerState: null | { [id: number]: "success" | "error" };
-  quiz: QuizData[];
 }

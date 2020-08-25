@@ -10,6 +10,7 @@ interface InputProps {
   touched: boolean;
   shouldValidate: boolean;
   onChange(event: React.ChangeEvent<HTMLInputElement>): void;
+  logInError?: string;
 }
 
 function isValid(
@@ -69,6 +70,7 @@ const Input: React.FC<InputProps> = ({
   touched,
   shouldValidate,
   onChange,
+  logInError,
 }) => {
   const htmlFor = `${type}-${Math.random()}`;
 
@@ -94,6 +96,8 @@ const Input: React.FC<InputProps> = ({
       ></FormInput>
       {isValid(valid, touched, shouldValidate) ? (
         <InputErrorMessage>{errorMessage}</InputErrorMessage>
+      ) : logInError ? (
+        <InputErrorMessage>{logInError}</InputErrorMessage>
       ) : null}
     </InputComponent>
   );

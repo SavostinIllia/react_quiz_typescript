@@ -1,6 +1,7 @@
 import React from "react";
-import AnswersList from "./AnwersList.tsx/AnswersList";
+// import AnswersList from "./AnwersList.tsx/AnswersList";
 import styled from "styled-components";
+import AnswersList from "./AnwersList.tsx/AnswersList";
 
 interface ActiveQuizProps {
   question: string;
