@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import ActiveQuiz from "../../components/ActiveQuiz/ActiveQuiz";
 import styled from "styled-components";
 import FinishedQuiz from "../../components/FinishedQuiz/FinishedQuiz";
@@ -42,24 +42,11 @@ const initialState: QuizState = {
   answerState: null,
   results: {},
 };
-const initialQuiz: QuizData[] = [
-  {
-    question: "",
-    rightAnswer: 1,
-    id: 1,
-    answers: [
-      { text: "", id: 1 },
-      { text: "", id: 2 },
-      { text: "", id: 3 },
-      { text: "", id: 4 },
-    ],
-  },
-];
 
 const Quiz: React.FC<MatchProps> = ({ match }) => {
   const [quizState, setQuizState] = useState<QuizState>(initialState);
   const [isFinished, setIsFinished] = useState<boolean>(false);
-  const [quiz, setQuiz] = useState<QuizData[]>(initialQuiz);
+  const [quiz, setQuiz] = useState<QuizData[]>([]);
   const [quizLoaded, setQuizLoaded] = useState<boolean>(true);
 
   useEffect(() => {
@@ -72,7 +59,7 @@ const Quiz: React.FC<MatchProps> = ({ match }) => {
       setQuiz(quiz);
     };
     fetchQuizes();
-  });
+  }, [match.params.id]);
 
   const onAnswerClickHandler = (answerId: number) => {
     if (quizState.answerState) {
@@ -141,7 +128,7 @@ const Quiz: React.FC<MatchProps> = ({ match }) => {
     <QuizContainer>
       <ActiveQuizWrapper>
         <QuizTitle>Quiz</QuizTitle>
-        {quizLoaded ? (
+        {quizLoaded || !quiz.length ? (
           <Loader isBigLoader={true} />
         ) : isFinished ? (
           <FinishedQuiz

@@ -6,9 +6,7 @@ import Auth from "./containers/Auth/Auth";
 import QuizCreator from "./containers/QuizCreator/QuizCreator";
 import QuizList from "./containers/QuizList/QuizList";
 
-interface AppProps {}
-
-const App: React.FC<AppProps> = () => {
+const App: React.FC = () => {
   return (
     <Layout>
       <Switch>

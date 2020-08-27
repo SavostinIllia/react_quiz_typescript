@@ -1,6 +1,7 @@
-import React, { Component, ReactNode } from "react";
+import React, { ReactNode } from "react";
 import styled from "styled-components";
 import Drawer from "../../components/Navigation/Drawer";
+import AuthProvider from "../../context/authcontext/Authcontext";
 
 type LayoutProps = {
   children: ReactNode;
@@ -13,15 +14,15 @@ const LayoutChildrenWrapper = styled.main`
   overflow: hidden;
 `;
 
-class Layout extends Component<LayoutProps> {
-  render() {
-    return (
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  return (
+    <AuthProvider>
       <LayoutContainer>
         <Drawer />
-        <LayoutChildrenWrapper>{this.props.children}</LayoutChildrenWrapper>
+        <LayoutChildrenWrapper>{children}</LayoutChildrenWrapper>
       </LayoutContainer>
-    );
-  }
-}
+    </AuthProvider>
+  );
+};
 
 export default Layout;

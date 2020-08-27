@@ -3,6 +3,7 @@ import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
 import styled from "styled-components";
 import axios from "axios";
+
 const is = require("is_js");
 
 const AuthSection = styled.section`
@@ -69,14 +70,15 @@ const App: React.FC = () => {
   const [formControls, setFormControls] = useState<FormControls>(initialState);
   const [isFormValid, setIsFormValid] = useState<boolean>(false);
   const [isRegisterLoading, setIsRegisterLoading] = useState<boolean>(false);
+  const [invalidData, setInvalidData] = useState<boolean>(true);
 
   const logInHandler = async (e: MouseEvent) => {
     e.preventDefault();
-    const formControls = { ...initialState.formControls };
+    const formAuth = JSON.parse(JSON.stringify(formControls));
     //@ts-ignore
     const authData = {
-      email: formControls.email.value,
-      password: formControls.password.value,
+      email: formAuth.formControls.email.value,
+      password: formAuth.formControls.password.value,
       returnSecureToken: true,
     };
     try {
@@ -87,22 +89,9 @@ const App: React.FC = () => {
       );
       setIsRegisterLoading(false);
     } catch (err) {
-      return Object.keys(formControls).map((controlName: string) => {
-        //@ts-ignore
-        const control = formControls[controlName];
-        control.valid = false;
-        control.value = "";
-        control.errorMessage = "Email or Password is incorrect";
-        //@ts-ignore
-        formControls[controlName] = control;
-        setFormControls((prev) => {
-          return {
-            ...prev,
-            formControls,
-          };
-        });
-        setIsRegisterLoading(false);
-      });
+      setIsRegisterLoading(false);
+      setInvalidData(false);
+      setFormControls(initialState);
     }
   };
 
@@ -155,40 +144,37 @@ const App: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     controlName: string
   ) => {
-    const formControls = { ...initialState.formControls };
-    //@ts-ignore
-    const control: FormControlsEmail = formControls[controlName];
+    const formState = JSON.parse(JSON.stringify(formControls));
 
+    //@ts-ignore
+    const control: FormControlsEmail = formState.formControls[controlName];
     control.value = e.target.value;
     control.touched = true;
     control.valid = validateControl(control.value, control.validation);
 
-    //@ts-ignore
-    formControls[controlName] = control;
-
     let isFormValidChecked = true;
-
-    Object.keys(formControls).forEach((name) => {
+    Object.keys(formState.formControls).forEach((name) => {
       isFormValidChecked =
         //@ts-ignore
-        formControls[name].valid && isFormValidChecked;
+        formState.formControls[name].valid && isFormValidChecked;
     });
 
     setIsFormValid(isFormValidChecked);
+    setInvalidData(true);
     setFormControls((prev) => {
       return {
         ...prev,
-        formControls,
+        ...formState,
       };
     });
   };
 
   const renderInputs = () => {
-    const formControlsRender = { ...formControls.formControls };
-    return Object.keys(formControlsRender).map(
+    const formControlsRender = JSON.parse(JSON.stringify(formControls));
+    return Object.keys(formControlsRender.formControls).map(
       (controlName: string, index: number) => {
         //@ts-ignore
-        const control = formControlsRender[controlName];
+        const control = formControlsRender.formControls[controlName];
         return (
           <Input
             key={index}
@@ -212,10 +198,9 @@ const App: React.FC = () => {
     <AuthSection>
       <AuthContainer>
         <AuthTitle>Auth</AuthTitle>
-
         <AuthForm onSubmit={onsubmitHandler}>
+          {invalidData ? null : <p>Invalid password or email</p>}
           {renderInputs()}
-
           <Button
             buttonClass="success"
             text="Log In"
