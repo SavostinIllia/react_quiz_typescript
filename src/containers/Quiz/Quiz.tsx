@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import ActiveQuiz from "../../components/ActiveQuiz/ActiveQuiz";
 import styled from "styled-components";
 import FinishedQuiz from "../../components/FinishedQuiz/FinishedQuiz";
@@ -108,7 +108,7 @@ const Quiz: React.FC<MatchProps> = ({ match }) => {
     }
   };
 
-  const isQuizFinished = () => {
+  const isQuizFinished = (): boolean => {
     return quizState.activeQuestion + 1 === quiz.length;
   };
 

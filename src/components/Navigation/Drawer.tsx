@@ -4,6 +4,7 @@ import styled from "styled-components";
 import classNames from "classnames";
 import BackDrop from "./BackDrop";
 import { NavLink } from "react-router-dom";
+import { useAuthContext } from "../../context/authcontext/Authcontext";
 
 const DrawerNavigation = styled.nav`
   position: fixed;
@@ -43,13 +44,9 @@ const DrawerNavigationLinks = styled(NavLink)`
 `;
 
 const Drawer: React.FC = () => {
-  const [menuToggle, setMenuToggle] = useState<boolean>(false);
+  const { isLoggedIn } = useAuthContext();
 
-  const navigationLinks: Array<QuizLinks> = [
-    { to: "/", label: "List", exact: true },
-    { to: "/auth", label: "Auth", exact: false },
-    { to: "/quiz-creator", label: "Quiz Creator", exact: false },
-  ];
+  const [menuToggle, setMenuToggle] = useState<boolean>(false);
 
   const DrawerClasses = classNames({
     close: !menuToggle,
@@ -79,6 +76,18 @@ const Drawer: React.FC = () => {
       </DrawerNavigationLinksArray>
     );
   };
+  const navigationLinks: Array<QuizLinks> = [
+    { to: "/", label: "List", exact: true },
+  ];
+
+  if (isLoggedIn) {
+    navigationLinks.push(
+      { to: "/quiz-creator", label: "Quiz Creator", exact: false },
+      { to: "/logout", label: "Logout", exact: false }
+    );
+  } else {
+    navigationLinks.push({ to: "/auth", label: "Auth", exact: false });
+  }
   return (
     <>
       <DrawerNavigation className={DrawerClasses}>

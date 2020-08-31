@@ -3,12 +3,15 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import GlobalStyle from "./Styles/GlobalStyle";
 import { BrowserRouter } from "react-router-dom";
+import AuthProvider from "./context/authcontext/Authcontext";
 
 const app: JSX.Element = (
-  <BrowserRouter>
-    <App />
-    <GlobalStyle />
-  </BrowserRouter>
+  <AuthProvider>
+    <BrowserRouter>
+      <App />
+      <GlobalStyle />
+    </BrowserRouter>
+  </AuthProvider>
 );
 
 ReactDOM.render(app, document.getElementById("root"));

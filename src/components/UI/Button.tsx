@@ -1,7 +1,6 @@
 import React from "react";
 import classNames from "classnames";
 import styled, { css } from "styled-components";
-
 import Loader from "./Loader";
 interface ButtonProps {
   buttonClass: "primary" | "success" | "error";
@@ -22,6 +21,7 @@ const ButtonComponent = styled.button<{ disabled?: boolean }>`
   transition: 0.3s ease-in-out;
   margin-right: 15px;
   position: relative;
+  min-width: 150px;
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   ${({ disabled }) =>
     (disabled &&

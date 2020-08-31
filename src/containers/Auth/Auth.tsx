@@ -3,9 +3,10 @@ import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
 import styled from "styled-components";
 import axios from "axios";
-
+import { useAuthContext } from "../../context/authcontext/Authcontext";
 const is = require("is_js");
 
+// STYLES
 const AuthSection = styled.section`
   display: flex;
   flex-wrap: wrap;
@@ -31,9 +32,16 @@ const AuthForm = styled.form`
   padding: 40px;
   display: flex;
   flex-wrap: wrap;
-  width: 100%;
   flex-direction: row;
 `;
+const AuthError = styled.p`
+  display: block;
+  margin: 0 auto;
+  font-size: 30px;
+  font-weight: 600;
+  color: #ff6b6b;
+`;
+// END STYLES
 
 const initialState: FormControls = {
   formControls: {
@@ -67,53 +75,42 @@ const initialState: FormControls = {
 };
 
 const App: React.FC = () => {
+  const {
+    LoggingHandler,
+    isLoading,
+    validEmail,
+    resetEmailValid,
+  } = useAuthContext();
+
   const [formControls, setFormControls] = useState<FormControls>(initialState);
   const [isFormValid, setIsFormValid] = useState<boolean>(false);
-  const [isRegisterLoading, setIsRegisterLoading] = useState<boolean>(false);
-  const [invalidData, setInvalidData] = useState<boolean>(true);
 
-  const logInHandler = async (e: MouseEvent) => {
+  const logInHandler = (e: MouseEvent) => {
     e.preventDefault();
-    const formAuth = JSON.parse(JSON.stringify(formControls));
-    //@ts-ignore
+    const formAuth: FormControls = JSON.parse(JSON.stringify(formControls));
+    const authData = {
+      email: formAuth.formControls.email.value,
+      password: formAuth.formControls.password.value,
+      returnSecureToken: true,
+    };
+    LoggingHandler(authData);
+  };
+
+  const registerHandler = async (e: MouseEvent) => {
+    e.preventDefault();
+    const formAuth: FormControls = JSON.parse(JSON.stringify(formControls));
     const authData = {
       email: formAuth.formControls.email.value,
       password: formAuth.formControls.password.value,
       returnSecureToken: true,
     };
     try {
-      setIsRegisterLoading(true);
-      await axios.post(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDBxQlrYg-i-k_7IFNSWK_xHTT0v5tNhOg`,
-        authData
-      );
-      setIsRegisterLoading(false);
-    } catch (err) {
-      setIsRegisterLoading(false);
-      setInvalidData(false);
-      setFormControls(initialState);
-    }
-  };
-
-  const registerHandler = async (e: MouseEvent) => {
-    e.preventDefault();
-    const formControls = { ...initialState.formControls };
-    const authData = {
-      email: formControls.email.value,
-      password: formControls.password.value,
-      returnSecureToken: true,
-    };
-    try {
-      setIsRegisterLoading(true);
       await axios.post(
         `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=
           AIzaSyDBxQlrYg-i-k_7IFNSWK_xHTT0v5tNhOg`,
         authData
       );
-      setIsRegisterLoading(false);
-    } catch (err) {
-      setIsRegisterLoading(false);
-    }
+    } catch (err) {}
   };
 
   const onsubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
@@ -121,7 +118,35 @@ const App: React.FC = () => {
     console.log("SUBMITED");
   };
 
-  const validateControl = (value: string, validation: Validation) => {
+  const onChangeHandler = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    controlName: string
+  ) => {
+    resetEmailValid();
+    const formState: FormControls = JSON.parse(JSON.stringify(formControls));
+    //@ts-ignore
+    const control: FormControlsEmail = formState.formControls[controlName];
+    control.value = e.target.value;
+    control.touched = true;
+    control.valid = validateControl(control.value, control.validation);
+
+    let isFormValidChecked = true;
+    Object.keys(formState.formControls).forEach((name) => {
+      isFormValidChecked =
+        //@ts-ignore
+        formState.formControls[name].valid && isFormValidChecked;
+    });
+
+    setIsFormValid(isFormValidChecked);
+    setFormControls((prev) => {
+      return {
+        ...prev,
+        ...formState,
+      };
+    });
+  };
+
+  const validateControl = (value: string, validation: Validation): boolean => {
     let isValid = true;
 
     if (!validation) return true;
@@ -140,41 +165,15 @@ const App: React.FC = () => {
     return isValid;
   };
 
-  const onChangeHandler = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    controlName: string
-  ) => {
-    const formState = JSON.parse(JSON.stringify(formControls));
-
-    //@ts-ignore
-    const control: FormControlsEmail = formState.formControls[controlName];
-    control.value = e.target.value;
-    control.touched = true;
-    control.valid = validateControl(control.value, control.validation);
-
-    let isFormValidChecked = true;
-    Object.keys(formState.formControls).forEach((name) => {
-      isFormValidChecked =
-        //@ts-ignore
-        formState.formControls[name].valid && isFormValidChecked;
-    });
-
-    setIsFormValid(isFormValidChecked);
-    setInvalidData(true);
-    setFormControls((prev) => {
-      return {
-        ...prev,
-        ...formState,
-      };
-    });
-  };
-
-  const renderInputs = () => {
-    const formControlsRender = JSON.parse(JSON.stringify(formControls));
+  const renderInputs = (): JSX.Element[] => {
+    const formControlsRender: FormControls = JSON.parse(
+      JSON.stringify(formControls)
+    );
     return Object.keys(formControlsRender.formControls).map(
       (controlName: string, index: number) => {
         //@ts-ignore
         const control = formControlsRender.formControls[controlName];
+
         return (
           <Input
             key={index}
@@ -199,21 +198,21 @@ const App: React.FC = () => {
       <AuthContainer>
         <AuthTitle>Auth</AuthTitle>
         <AuthForm onSubmit={onsubmitHandler}>
-          {invalidData ? null : <p>Invalid password or email</p>}
+          {validEmail ? <AuthError>Invalid password or email</AuthError> : null}
           {renderInputs()}
           <Button
             buttonClass="success"
             text="Log In"
             onClick={(e: MouseEvent) => logInHandler(e)}
             disabled={!isFormValid}
-            isLoading={isRegisterLoading}
+            isLoading={isLoading}
           />
           <Button
             buttonClass="primary"
             text="Register"
             onClick={(e: MouseEvent) => registerHandler(e)}
             disabled={!isFormValid}
-            isLoading={isRegisterLoading}
+            isLoading={isLoading}
           />
         </AuthForm>
       </AuthContainer>
