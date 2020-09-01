@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
 import styled from "styled-components";
-import axios from "axios";
 import { useAuthContext } from "../../context/authcontext/Authcontext";
+import RegistartionPopup from "../../components/UI/RegistartionPopup";
 const is = require("is_js");
 
 // STYLES
@@ -80,6 +80,8 @@ const App: React.FC = () => {
     isLoading,
     validEmail,
     resetEmailValid,
+    RegisterHandler,
+    registerSuccess,
   } = useAuthContext();
 
   const [formControls, setFormControls] = useState<FormControls>(initialState);
@@ -88,35 +90,31 @@ const App: React.FC = () => {
   const logInHandler = (e: MouseEvent) => {
     e.preventDefault();
     const formAuth: FormControls = JSON.parse(JSON.stringify(formControls));
-    const authData = {
-      email: formAuth.formControls.email.value,
-      password: formAuth.formControls.password.value,
-      returnSecureToken: true,
-    };
-    LoggingHandler(authData);
+    LoggingHandler(
+      formAuth.formControls.email.value,
+      formAuth.formControls.password.value,
+      true
+    );
   };
 
-  const registerHandler = async (e: MouseEvent) => {
+  const registerHandler = (e: MouseEvent) => {
     e.preventDefault();
     const formAuth: FormControls = JSON.parse(JSON.stringify(formControls));
-    const authData = {
-      email: formAuth.formControls.email.value,
-      password: formAuth.formControls.password.value,
-      returnSecureToken: true,
-    };
-    try {
-      await axios.post(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=
-          AIzaSyDBxQlrYg-i-k_7IFNSWK_xHTT0v5tNhOg`,
-        authData
-      );
-    } catch (err) {}
+    RegisterHandler(
+      formAuth.formControls.email.value,
+      formAuth.formControls.password.value,
+      true
+    );
   };
 
   const onsubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("SUBMITED");
   };
+
+  useEffect(() => {
+    setFormControls(initialState);
+  }, [registerSuccess]);
 
   const onChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -200,6 +198,9 @@ const App: React.FC = () => {
         <AuthForm onSubmit={onsubmitHandler}>
           {validEmail ? <AuthError>Invalid password or email</AuthError> : null}
           {renderInputs()}
+          {registerSuccess ? (
+            <RegistartionPopup popupText="Registarion Successfull" />
+          ) : null}
           <Button
             buttonClass="success"
             text="Log In"

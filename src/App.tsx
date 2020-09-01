@@ -10,7 +10,6 @@ import LogOut from "./components/LogOut/LogOut";
 
 const App: React.FC = () => {
   const { isLoggedIn } = useAuthContext();
-  console.log("isLoggedIn :>> ", isLoggedIn);
   let routes = (
     <Switch>
       <Route path="/auth" component={Auth} />
