@@ -11,6 +11,7 @@ interface InputProps {
   shouldValidate: boolean;
   onChange(event: React.ChangeEvent<HTMLInputElement>): void;
   logInError?: string;
+  placeholder?: string;
 }
 
 function isValid(
@@ -71,6 +72,7 @@ const Input: React.FC<InputProps> = ({
   shouldValidate,
   onChange,
   logInError,
+  placeholder,
 }) => {
   const htmlFor = `${type}-${Math.random()}`;
 
@@ -93,6 +95,7 @@ const Input: React.FC<InputProps> = ({
         value={value}
         onChange={onChange}
         touched={touched}
+        placeholder={placeholder}
       ></FormInput>
       {isValid(valid, touched, shouldValidate) ? (
         <InputErrorMessage>{errorMessage}</InputErrorMessage>

@@ -1,5 +1,20 @@
 import React, { createContext, useContext, useReducer } from "react";
+import {
+  REGISTER_HANDLER,
+  RESET_REGISTER,
+  LOGIN_HANDLER,
+  IS_LOGGEDIN,
+  IS_LOADING,
+  ERROR_LOGGIN,
+  RESET_EMAIL_VALID,
+  LOG_OUT,
+} from "./AuthContextTypes";
 import axios from "axios";
+
+const LOGIN_URL =
+  "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDBxQlrYg-i-k_7IFNSWK_xHTT0v5tNhOg";
+const REGISTER_URL =
+  "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDBxQlrYg-i-k_7IFNSWK_xHTT0v5tNhOg";
 
 const AuthContext = createContext();
 
@@ -17,26 +32,26 @@ export const useAuthContext = () => {
 
 const LoggingReducer = (state = initialState, action) => {
   switch (action.type) {
-    case "REGISTER_HANDLER": {
+    case REGISTER_HANDLER: {
       return {
         ...state,
         isLoading: false,
         registerSuccess: true,
       };
     }
-    case "RESET_REGISTER": {
+    case RESET_REGISTER: {
       return {
         ...state,
         registerSuccess: false,
       };
     }
-    case "LOGIN_HANDLER": {
+    case LOGIN_HANDLER: {
       return {
         ...state,
         isLoading: false,
       };
     }
-    case "IS_LOGGEDIN": {
+    case IS_LOGGEDIN: {
       return {
         ...state,
         isLoggedIn: true,
@@ -44,13 +59,13 @@ const LoggingReducer = (state = initialState, action) => {
         token: action.token,
       };
     }
-    case "IS_LOADING": {
+    case IS_LOADING: {
       return {
         ...state,
         isLoading: true,
       };
     }
-    case "ERROR_LOGGIN": {
+    case ERROR_LOGGIN: {
       return {
         ...state,
         isLoggedIn: false,
@@ -58,13 +73,13 @@ const LoggingReducer = (state = initialState, action) => {
         validEmail: true,
       };
     }
-    case "RESET_EMAIL_VALID": {
+    case RESET_EMAIL_VALID: {
       return {
         ...state,
         validEmail: false,
       };
     }
-    case "LOG_OUT": {
+    case LOG_OUT: {
       return {
         ...state,
         isLoggedIn: false,
@@ -87,10 +102,7 @@ const AuthProvider = ({ children }) => {
       returnSecureToken: true,
     };
     try {
-      const response = await axios.post(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDBxQlrYg-i-k_7IFNSWK_xHTT0v5tNhOg`,
-        authData
-      );
+      const response = await axios.post(LOGIN_URL, authData);
       const responseData = response.data;
       const expirationDate = new Date(
         new Date().getTime() + responseData.expiresIn * 1000
@@ -99,7 +111,7 @@ const AuthProvider = ({ children }) => {
       localStorage.setItem("userId", responseData.localId);
       localStorage.setItem("expirationDate", expirationDate);
       setIsLoggedIn(responseData.idToken);
-      dispatch({ type: "LOGIN_HANDLER" });
+      dispatch({ type: LOGIN_HANDLER });
       autoLogOut(responseData.expiresIn);
     } catch (err) {
       setErrorLoggedIn();
@@ -114,14 +126,10 @@ const AuthProvider = ({ children }) => {
       returnSecureToken: true,
     };
     try {
-      await axios.post(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=
-        AIzaSyDBxQlrYg-i-k_7IFNSWK_xHTT0v5tNhOg`,
-        authData
-      );
-      dispatch({ type: "REGISTER_HANDLER" });
+      await axios.post(REGISTER_URL, authData);
+      dispatch({ type: REGISTER_HANDLER });
       setTimeout(() => {
-        dispatch({ type: "RESET_REGISTER" });
+        dispatch({ type: RESET_REGISTER });
       }, 2000);
     } catch (err) {
       console.log("err", err.response);
@@ -139,13 +147,13 @@ const AuthProvider = ({ children }) => {
     localStorage.removeItem("expirationDate");
     dispatch({ type: "LOG_OUT" });
   };
-  const setLoading = () => dispatch({ type: "IS_LOADING" });
+  const setLoading = () => dispatch({ type: IS_LOADING });
   const setIsLoggedIn = (token) => {
     dispatch({ type: "IS_LOGGEDIN", token });
   };
-  const setErrorLoggedIn = () => dispatch({ type: "ERROR_LOGGIN" });
+  const setErrorLoggedIn = () => dispatch({ type: ERROR_LOGGIN });
 
-  const resetEmailValid = () => dispatch({ type: "RESET_EMAIL_VALID" });
+  const resetEmailValid = () => dispatch({ type: RESET_EMAIL_VALID });
 
   const { isLoading, isLoggedIn, validEmail, registerSuccess } = state;
 

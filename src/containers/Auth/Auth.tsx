@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
 import styled from "styled-components";
-import { useAuthContext } from "../../context/authcontext/Authcontext";
+import { useAuthContext } from "../../context/authcontext/AuthContext";
 import RegistartionPopup from "../../components/UI/RegistartionPopup";
 const is = require("is_js");
 
@@ -53,6 +53,7 @@ const initialState: FormControls = {
       valid: false,
       touched: false,
       logInRegisterError: "",
+      placeholder: "UserName",
       validation: {
         required: true,
         email: true,
@@ -62,6 +63,7 @@ const initialState: FormControls = {
       value: "",
       type: "password",
       label: "Password",
+      placeholder: "Password",
       errorMessage: "Enter valid password",
       valid: false,
       logInRegisterError: "",
@@ -181,6 +183,7 @@ const App: React.FC = () => {
             touched={control.touched}
             label={control.label}
             errorMessage={control.errorMessage}
+            placeholder={control.placeholder}
             shouldValidate={!!control.validation}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               onChangeHandler(e, controlName)

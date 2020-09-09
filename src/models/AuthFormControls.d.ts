@@ -7,6 +7,7 @@ interface FormControlsEmail {
   touched: boolean;
   validation: Validation;
   logInRegisterError: string;
+  placeholder: string;
 }
 
 interface Validation {

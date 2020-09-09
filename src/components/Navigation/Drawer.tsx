@@ -4,7 +4,7 @@ import styled from "styled-components";
 import classNames from "classnames";
 import BackDrop from "./BackDrop";
 import { NavLink } from "react-router-dom";
-import { useAuthContext } from "../../context/authcontext/Authcontext";
+import { useAuthContext } from "../../context/authcontext/AuthContext";
 
 const DrawerNavigation = styled.nav`
   position: fixed;
